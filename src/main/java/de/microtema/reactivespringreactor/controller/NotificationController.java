@@ -2,6 +2,7 @@ package de.microtema.reactivespringreactor.controller;
 
 import de.microtema.reactivespringreactor.consumer.NotificationConsumer;
 import de.microtema.reactivespringreactor.model.NotificationData;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import reactor.bus.Event;
 import reactor.bus.EventBus;
 
+@Log4j2
 @Controller
 public class NotificationController {
 
@@ -32,7 +34,7 @@ public class NotificationController {
 
             eventBus.notify(notificationConsumer.getConsumerName(), Event.wrap(data));
 
-            System.out.println("Notification " + i + ": task submitted successfully");
+            log.info("Notification " + i + ": task submitted successfully");
         }
 
         return new ResponseEntity<>(true, HttpStatus.OK);
