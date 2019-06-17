@@ -19,10 +19,13 @@ public class NotificationControllerTest {
     TestRestTemplate restTemplate;
 
     @Test
-    public void exampleTest() {
+    public void exampleTest() throws InterruptedException {
 
         Boolean result = restTemplate.getForObject("/notify/10", Boolean.class);
 
         assertTrue(result);
+
+        // Note: Wait for graceful termination
+        Thread.sleep(5000);
     }
 }

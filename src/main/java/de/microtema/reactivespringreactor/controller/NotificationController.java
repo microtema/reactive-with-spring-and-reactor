@@ -2,6 +2,8 @@ package de.microtema.reactivespringreactor.controller;
 
 import de.microtema.reactivespringreactor.consumer.NotificationConsumer;
 import de.microtema.reactivespringreactor.model.NotificationData;
+import de.seven.fate.model.builder.ModelBuilder;
+import de.seven.fate.model.builder.ModelBuilderFactory;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,25 +20,27 @@ public class NotificationController {
 
     private final EventBus eventBus;
     private final NotificationConsumer notificationConsumer;
+    private final ModelBuilder<NotificationData> modelBuilder;
 
     public NotificationController(EventBus eventBus, NotificationConsumer notificationConsumer) {
         this.eventBus = eventBus;
         this.notificationConsumer = notificationConsumer;
+        this.modelBuilder = ModelBuilderFactory.createBuilder(NotificationData.class);
     }
 
-    @GetMapping(value = "/notify/{param}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> startNotification(@PathVariable Integer param) {
+    @GetMapping(value = "/notify/{size}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Boolean> startNotification(@PathVariable Integer size) {
 
-        for (int i = 0; i < param; i++) {
-
-            NotificationData data = new NotificationData();
-            data.setId(i);
-
-            eventBus.notify(notificationConsumer.getConsumerName(), Event.wrap(data));
-
-            log.info("Notification " + i + ": task submitted successfully");
-        }
+        modelBuilder.list(size).forEach(this::notify);
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
+
+    private void notify(NotificationData notificationData) {
+
+        eventBus.notify(notificationConsumer.getConsumerName(), Event.wrap(notificationData));
+
+        log.info("Notification " + notificationData.getId() + ": task submitted successfully");
+    }
+
 }
